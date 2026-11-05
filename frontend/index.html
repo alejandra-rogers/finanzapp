@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinanzApp</title>
+  <style>
+/* ===== FinanzApp — estilos ===== */
+:root {
+  --verde: #1f8a5b;
+  --verde-osc: #166c47;
+  --verde-claro: #e6f4ec;
+  --texto: #1b2a33;
+  --gris: #6b7a85;
+  --borde: #e3e8ec;
+  --fondo: #f6f8f7;
+  --rojo: #d64545;
+  --naranja: #e8913a;
+  --radio: 14px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+  color: var(--texto);
+  background: #dfe7e3;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+}
+
+/* Marco de celular (en pantallas chicas ocupa todo) */
+.telefono {
+  width: 390px;
+  height: 800px;
+  background: #fff;
+  border: 3px solid #1b2a33;
+  border-radius: 40px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+@media (max-width: 440px) {
+  .telefono { width: 100vw; height: 100vh; border: 0; border-radius: 0; }
+}
+
+.barra-estado {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 26px 6px; font-size: 14px; font-weight: 600;
+}
+.barra-estado svg { height: 12px; width: auto; }
+
+/* ===== Pantallas ===== */
+.pantalla {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  padding: 10px 22px 20px;
+  overflow-y: auto;
+  gap: 12px;
+}
+.pantalla.visible { display: flex; }
+.pantalla.con-menu { padding-bottom: 90px; }
+
+.centro { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 30px; }
+.centro.chico { margin-top: 20px; margin-bottom: 14px; }
+.logo-icono svg { width: 56px; height: 56px; }
+.marca { font-size: 34px; font-weight: 800; color: var(--verde-osc); letter-spacing: -0.5px; }
+#login .marca { font-size: 28px; }
+.lema { color: var(--gris); font-size: 14px; }
+h2 { font-size: 20px; font-weight: 700; }
+h4 { font-size: 15px; font-weight: 700; }
+.alcancia svg { width: 220px; height: 200px; margin-top: 18px; }
+
+.puntos { display: flex; gap: 6px; margin-top: 10px; }
+.puntos span { width: 7px; height: 7px; border-radius: 50%; background: #c9d6cf; }
+.puntos .activo { background: var(--verde); }
+
+.acciones { margin-top: auto; display: flex; flex-direction: column; gap: 12px; }
+.pie { text-align: center; color: var(--gris); font-size: 13px; }
+
+/* ===== Botones ===== */
+button { font-family: inherit; cursor: pointer; }
+.btn-primario {
+  background: var(--verde); color: #fff; border: 0;
+  border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700;
+}
+.btn-primario:hover { background: var(--verde-osc); }
+.btn-secundario {
+  background: #fff; color: var(--texto); border: 1px solid var(--borde);
+  border-radius: 12px; padding: 13px; font-size: 15px; font-weight: 600;
+}
+.link { background: none; border: 0; color: var(--verde); font-size: 13px; font-weight: 600; text-decoration: none; }
+.icon-btn { background: none; border: 0; width: 32px; height: 32px; display: grid; place-items: center; color: var(--texto); }
+.icon-btn svg { width: 24px; height: 24px; }
+
+/* ===== Formularios ===== */
+.formulario { display: flex; flex-direction: column; gap: 12px; }
+.campo {
+  display: flex; align-items: center; gap: 10px;
+  border: 1px solid var(--borde); border-radius: 12px; padding: 0 14px; background: #fff;
+}
+.campo svg { width: 18px; height: 18px; color: var(--gris); }
+.campo input { border: 0; outline: none; padding: 14px 0; font-size: 14px; flex: 1; font-family: inherit; }
+.campo:focus-within { border-color: var(--verde); }
+input, select {
+  font-family: inherit; font-size: 14px; color: var(--texto);
+  border: 1px solid var(--borde); border-radius: 10px; padding: 11px 12px; background: #fff; width: 100%;
+}
+input:focus, select:focus { outline: 2px solid var(--verde-claro); border-color: var(--verde); }
+.check { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.check input { width: auto; }
+.error { color: var(--rojo); font-size: 13px; min-height: 16px; }
+.fila-entre { display: flex; justify-content: space-between; align-items: center; }
+.fila-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.compacto { gap: 10px; }
+
+.segmentado { display: grid; grid-template-columns: 1fr 1fr; background: #eef2f0; border-radius: 12px; padding: 4px; }
+.segmentado input { display: none; }
+.segmentado span { display: block; text-align: center; padding: 9px; border-radius: 9px; font-size: 14px; font-weight: 600; color: var(--gris); cursor: pointer; }
+.segmentado input:checked + span { background: var(--verde); color: #fff; }
+
+/* ===== Cabecera ===== */
+.cabecera { display: grid; grid-template-columns: 32px 1fr 32px; align-items: center; text-align: center; min-height: 40px; }
+#inicio .cabecera { grid-template-columns: 1fr 32px; text-align: left; }
+.saludo { color: var(--gris); font-size: 13px; }
+.selector-mes { width: auto; align-self: flex-start; padding: 7px 10px; font-size: 13px; }
+
+/* ===== Tarjetas ===== */
+.tarjeta { border: 1px solid var(--borde); border-radius: var(--radio); padding: 14px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.03); }
+.tarjeta-balance {
+  background: linear-gradient(135deg, var(--verde) 0%, var(--verde-osc) 100%);
+  color: #fff; border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 6px;
+}
+.tarjeta-balance p { font-size: 13px; opacity: .85; }
+.tarjeta-balance h3 { font-size: 30px; font-weight: 800; margin-bottom: 6px; }
+.tarjeta-balance small { display: block; font-size: 12px; opacity: .8; }
+.tarjeta-balance strong { font-size: 16px; }
+
+.titulo-seccion { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+
+.alerta { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: #fff4e8; color: #8a4b0f; font-size: 13px; }
+.alerta.roja { background: #fdecec; color: #8f2424; }
+.alerta svg { width: 18px; height: 18px; flex-shrink: 0; }
+.sin-datos { color: var(--gris); font-size: 13px; }
+
+/* ===== Listas ===== */
+.lista { list-style: none; display: flex; flex-direction: column; }
+.item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f3f2; }
+.item:last-child { border-bottom: 0; }
+.ico { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; }
+.ico svg { width: 19px; height: 19px; }
+.item-texto { flex: 1; min-width: 0; }
+.item-texto b { display: block; font-size: 14px; font-weight: 600; }
+.item-texto small { color: var(--gris); font-size: 12px; }
+.monto { font-weight: 700; font-size: 14px; white-space: nowrap; }
+.monto.gasto { color: var(--rojo); }
+.monto.ingreso { color: var(--verde); }
+.chevron svg { width: 16px; height: 16px; color: #a9b4bb; }
+.btn-chico { border: 0; border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 700; background: var(--verde-claro); color: var(--verde-osc); }
+.btn-borrar { background: none; border: 0; color: #a9b4bb; }
+.btn-borrar svg { width: 16px; height: 16px; }
+
+/* ===== Presupuestos ===== */
+.pres { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
+.pres .item-texto small { display: block; margin: 2px 0 6px; }
+.barra { height: 8px; background: #edf1ef; border-radius: 6px; overflow: hidden; }
+.barra div { height: 100%; background: var(--verde); border-radius: 6px; }
+.barra div.medio { background: var(--naranja); }
+.barra div.excedido { background: var(--rojo); }
+.porc { font-size: 12px; font-weight: 700; color: var(--gris); min-width: 36px; text-align: right; }
+
+.total-carro { display: flex; justify-content: space-between; align-items: center; background: var(--verde-claro); border-color: transparent; }
+.total-carro strong { font-size: 20px; color: var(--verde-osc); }
+
+/* ===== Menú inferior ===== */
+.menu {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  display: none; grid-template-columns: repeat(5, 1fr);
+  background: #fff; border-top: 1px solid var(--borde); padding: 8px 6px 18px;
+}
+.menu.visible { display: grid; }
+.menu button { background: none; border: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; color: var(--gris); font-weight: 600; }
+.menu button svg { width: 22px; height: 22px; }
+.menu button.activo { color: var(--verde); }
+
+</style>
+</head>
+<body>
+  <div class="telefono">
+    <div class="barra-estado"><span>9:41</span><span class="estado-iconos">▂▄▆ ◉ ▭</span></div>
+
+    <!-- 1. BIENVENIDA -->
+    <section class="pantalla" id="bienvenida">
+      <div class="centro">
+        <div class="logo-icono" data-icon="logo"></div>
+        <h1 class="marca">FinanzApp</h1>
+        <p class="lema">Tu dinero, tus metas, un mejor mañana</p>
+        <div class="alcancia" data-icon="alcancia"></div>
+        <div class="puntos"><span class="activo"></span><span></span><span></span></div>
+      </div>
+      <div class="acciones">
+        <button class="btn-primario" data-ir="registro">Comenzar</button>
+        <button class="btn-secundario" data-ir="login">Ya tengo una cuenta</button>
+        <p class="pie">Finanzas simples<br>para una vida más tranquila</p>
+      </div>
+    </section>
+
+    <!-- 2. LOGIN -->
+    <section class="pantalla" id="login">
+      <div class="centro chico">
+        <div class="logo-icono" data-icon="logo"></div>
+        <h1 class="marca">FinanzApp</h1>
+        <h2>Iniciar sesión</h2>
+      </div>
+      <form id="form-login" class="formulario">
+        <label class="campo"><span data-icon="mail"></span><input type="email" id="login-email" placeholder="Correo electrónico" required></label>
+        <label class="campo"><span data-icon="candado"></span><input type="password" id="login-clave" placeholder="Contraseña" required></label>
+        <div class="fila-entre">
+          <label class="check"><input type="checkbox"> Recordarme</label>
+          <a href="#" class="link">¿Olvidaste tu contraseña?</a>
+        </div>
+        <p class="error" id="login-error"></p>
+        <button type="submit" class="btn-primario">Ingresar</button>
+        <p class="pie">¿No tenés cuenta? <a href="#" class="link" data-ir="registro">Crear una</a></p>
+      </form>
+    </section>
+
+    <!-- 3. REGISTRO -->
+    <section class="pantalla" id="registro">
+      <header class="cabecera"><button class="icon-btn" data-ir="bienvenida" data-icon="atras"></button><h2>Crear cuenta</h2><span></span></header>
+      <form id="form-registro" class="formulario">
+        <label class="campo"><span data-icon="usuario"></span><input type="text" id="reg-nombre" placeholder="Nombre" required></label>
+        <label class="campo"><span data-icon="mail"></span><input type="email" id="reg-email" placeholder="Correo electrónico" required></label>
+        <label class="campo"><span data-icon="candado"></span><input type="password" id="reg-clave" placeholder="Contraseña (mín. 6 caracteres)" minlength="6" required></label>
+        <label class="campo"><span data-icon="candado"></span><input type="password" id="reg-clave2" placeholder="Repetir contraseña" required></label>
+        <p class="error" id="reg-error"></p>
+        <button type="submit" class="btn-primario">Registrarme</button>
+        <p class="pie">¿Ya tenés cuenta? <a href="#" class="link" data-ir="login">Iniciar sesión</a></p>
+      </form>
+    </section>
+
+    <!-- 4. INICIO -->
+    <section class="pantalla con-menu" id="inicio">
+      <header class="cabecera"><div><p class="saludo">Hola,</p><h2 id="nombre-usuario">Usuario</h2></div><button class="icon-btn" id="btn-salir" data-icon="salir" title="Salir"></button></header>
+      <input type="month" id="mes" class="selector-mes">
+      <div class="tarjeta-balance">
+        <p>Balance del mes</p>
+        <h3 id="balance">$ 0,00</h3>
+        <div class="fila-entre">
+          <div><small>Ingresos</small><strong id="ingresos">$ 0</strong></div>
+          <div><small>Gastos</small><strong id="gastos">$ 0</strong></div>
+        </div>
+      </div>
+      <div class="titulo-seccion"><h4>Alertas</h4><button class="link" id="btn-leidas">Marcar leídas</button></div>
+      <div id="alertas"></div>
+      <div class="titulo-seccion"><h4>Últimos movimientos</h4><button class="link" data-ir="movimientos">Ver todos</button></div>
+      <ul class="lista" id="ultimos"></ul>
+    </section>
+
+    <!-- 5. MOVIMIENTOS -->
+    <section class="pantalla con-menu" id="movimientos">
+      <header class="cabecera"><span></span><h2>Movimientos</h2><button class="icon-btn" data-icon="descarga" id="btn-csv" title="Exportar CSV"></button></header>
+      <form id="form-mov" class="tarjeta formulario compacto">
+        <div class="segmentado">
+          <label><input type="radio" name="tipo" value="GASTO" checked><span>Gasto</span></label>
+          <label><input type="radio" name="tipo" value="INGRESO"><span>Ingreso</span></label>
+        </div>
+        <div class="fila-2">
+          <input type="number" id="mov-monto" placeholder="Monto" min="0.01" step="0.01" required>
+          <input type="date" id="mov-fecha" required>
+        </div>
+        <select id="mov-categoria"></select>
+        <input type="text" id="mov-desc" placeholder="Descripción">
+        <button class="btn-primario">Agregar</button>
+      </form>
+      <ul class="lista" id="lista-mov"></ul>
+    </section>
+
+    <!-- 6. PRESUPUESTOS -->
+    <section class="pantalla con-menu" id="presupuestos">
+      <header class="cabecera"><span></span><h2>Presupuestos</h2><span></span></header>
+      <div id="lista-pres"></div>
+      <form id="form-pres" class="tarjeta formulario compacto">
+        <h4>Definir presupuesto</h4>
+        <div class="fila-2">
+          <select id="pres-categoria"></select>
+          <input type="number" id="pres-monto" placeholder="Tope mensual" min="1" required>
+        </div>
+        <button class="btn-primario">Guardar presupuesto</button>
+      </form>
+    </section>
+
+    <!-- 7. COMPRAS PLANIFICADAS (carro) -->
+    <section class="pantalla con-menu" id="compras">
+      <header class="cabecera"><span></span><h2>Compras planificadas</h2><span></span></header>
+      <div class="tarjeta total-carro"><span>Total planificado</span><strong id="total-carro">$ 0</strong></div>
+      <ul class="lista" id="lista-compras"></ul>
+      <form id="form-compra" class="tarjeta formulario compacto">
+        <div class="fila-2">
+          <input type="text" id="compra-nombre" placeholder="¿Qué vas a comprar?" required>
+          <input type="number" id="compra-monto" placeholder="Monto" min="1" required>
+        </div>
+        <select id="compra-categoria"></select>
+        <button class="btn-primario">Agregar al carro</button>
+      </form>
+    </section>
+
+    <!-- 8. CATEGORÍAS -->
+    <section class="pantalla con-menu" id="categorias">
+      <header class="cabecera"><span></span><h2>Categorías</h2><button class="icon-btn" data-icon="mas" id="btn-nueva-cat" title="Nueva categoría"></button></header>
+      <div class="segmentado" id="seg-cat">
+        <label><input type="radio" name="tipocat" value="GASTO" checked><span>Gastos</span></label>
+        <label><input type="radio" name="tipocat" value="INGRESO"><span>Ingresos</span></label>
+      </div>
+      <ul class="lista" id="lista-cat"></ul>
+    </section>
+
+    <!-- MENÚ INFERIOR -->
+    <nav class="menu" id="menu">
+      <button data-ir="inicio"><span data-icon="casa"></span>Inicio</button>
+      <button data-ir="movimientos"><span data-icon="lista"></span>Movim.</button>
+      <button data-ir="presupuestos"><span data-icon="torta"></span>Presup.</button>
+      <button data-ir="compras"><span data-icon="carro"></span>Compras</button>
+      <button data-ir="categorias"><span data-icon="etiqueta"></span>Categ.</button>
+    </nav>
+  </div>
+  <script>
+// ===== FinanzApp — lógica del front =====
+// Por ahora los datos se guardan en localStorage.
+// Cuando se una con el backend (paso 9), cada función de "DATOS" se reemplaza
+// por un fetch a la API de Express (ej: POST /api/auth/login, GET /api/movimientos).
+
+// ---------- ÍCONOS (SVG simples) ----------
+const s = (d, extra = '') =>
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${extra}>${d}</svg>`;
+
+const ICONOS = {
+  logo: `<svg viewBox="0 0 64 64"><rect x="8" y="34" width="9" height="20" rx="3" fill="#7cc79f"/><rect x="22" y="24" width="9" height="30" rx="3" fill="#2fa36c"/><rect x="36" y="14" width="9" height="40" rx="3" fill="#1f8a5b"/><path d="M48 18c0-8 6-12 12-12 0 8-5 12-12 12z" fill="#2fa36c"/></svg>`,
+  alcancia: `<svg viewBox="0 0 220 200">
+    <ellipse cx="110" cy="185" rx="80" ry="8" fill="#e3efe8"/>
+    <ellipse cx="108" cy="120" rx="72" ry="55" fill="#7cc79f"/>
+    <ellipse cx="96" cy="108" rx="40" ry="26" fill="#9bd6b6" opacity=".6"/>
+    <rect x="62" y="150" width="20" height="30" rx="8" fill="#5fb487"/>
+    <rect x="128" y="150" width="20" height="30" rx="8" fill="#5fb487"/>
+    <path d="M70 75 L78 55 L92 70z" fill="#5fb487"/>
+    <ellipse cx="178" cy="122" rx="16" ry="18" fill="#5fb487"/>
+    <circle cx="173" cy="118" r="3" fill="#2d6b4a"/><circle cx="184" cy="118" r="3" fill="#2d6b4a"/>
+    <circle cx="150" cy="100" r="5" fill="#2d6b4a"/>
+    <rect x="94" y="62" width="34" height="6" rx="3" fill="#2d6b4a"/>
+    <circle cx="111" cy="38" r="22" fill="#f5c044" stroke="#d99a1e" stroke-width="4"/>
+    <text x="111" y="46" text-anchor="middle" font-size="22" font-weight="800" fill="#c47f10" font-family="Arial">$</text>
+    <path d="M150 20 l10 -10 M156 36 l14 -2 M140 8 l2 -12" stroke="#2d6b4a" stroke-width="4" stroke-linecap="round"/></svg>`,
+  mail: s('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>'),
+  candado: s('<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'),
+  usuario: s('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>'),
+  atras: s('<path d="m15 18-6-6 6-6"/>'),
+  salir: s('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>'),
+  mas: s('<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>'),
+  descarga: s('<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>'),
+  casa: s('<path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/>'),
+  lista: s('<path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/>'),
+  torta: s('<path d="M21 12A9 9 0 1 1 12 3v9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/>'),
+  carro: s('<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 12h11L21 7H6"/>'),
+  etiqueta: s('<path d="M20 12 12 20 3 11V3h8z"/><circle cx="7.5" cy="7.5" r="1.5"/>'),
+  chevron: s('<path d="m9 18 6-6-6-6"/>'),
+  alerta: s('<path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/>'),
+  basura: s('<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>'),
+  estado: `<svg viewBox="0 0 60 12"><rect x="0" y="8" width="3" height="4" fill="#1b2a33"/><rect x="5" y="5" width="3" height="7" fill="#1b2a33"/><rect x="10" y="2" width="3" height="10" fill="#1b2a33"/><path d="M22 6a8 8 0 0 1 12 0M25 9a4 4 0 0 1 6 0" stroke="#1b2a33" stroke-width="1.6" fill="none"/><rect x="40" y="1" width="17" height="10" rx="2.5" stroke="#1b2a33" fill="none"/><rect x="42" y="3" width="12" height="6" rx="1" fill="#1b2a33"/></svg>`,
+  // íconos de categorías
+  comida: s('<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 12h11L21 7H6"/>'),
+  auto: s('<path d="M5 16V11l2-5h10l2 5v5"/><path d="M3 16h18v3H3z"/><circle cx="7.5" cy="13" r="1"/><circle cx="16.5" cy="13" r="1"/>'),
+  hogar: s('<path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>'),
+  servicio: s('<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>'),
+  salud: s('<path d="M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-3 4.5 4.5 0 0 1 8 3c0 6-8 11-8 11z"/>'),
+  ocio: s('<rect x="3" y="6" width="18" height="12" rx="3"/><path d="M8 10v4M6 12h4M15 11h.01M18 13h.01"/>'),
+  ropa: s('<path d="M8 3 3 6l2 4 2-1v12h10V9l2 1 2-4-5-3a4 4 0 0 1-8 0z"/>'),
+  otros: s('<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>'),
+  sueldo: s('<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/>'),
+  extra: s('<path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'),
+};
+
+function pintarIconos(raiz = document) {
+  raiz.querySelectorAll('[data-icon]').forEach(el => {
+    if (!el.dataset.pintado) { el.innerHTML = ICONOS[el.dataset.icon] || ''; el.dataset.pintado = '1'; }
+  });
+}
+
+// ---------- DATOS (localStorage) ----------
+const CLAVE = 'finanzapp_v1';
+const CATEGORIAS_INICIALES = [
+  { id: 1, nombre: 'Alimentación', tipo: 'GASTO', icono: 'comida', color: '#e05a5a' },
+  { id: 2, nombre: 'Transporte', tipo: 'GASTO', icono: 'auto', color: '#e8913a' },
+  { id: 3, nombre: 'Vivienda', tipo: 'GASTO', icono: 'hogar', color: '#1f8a5b' },
+  { id: 4, nombre: 'Servicios', tipo: 'GASTO', icono: 'servicio', color: '#3b6fd8' },
+  { id: 5, nombre: 'Salud', tipo: 'GASTO', icono: 'salud', color: '#d64545' },
+  { id: 6, nombre: 'Entretenimiento', tipo: 'GASTO', icono: 'ocio', color: '#8a56d6' },
+  { id: 7, nombre: 'Ropa', tipo: 'GASTO', icono: 'ropa', color: '#17a2a2' },
+  { id: 8, nombre: 'Otros', tipo: 'GASTO', icono: 'otros', color: '#6b7a85' },
+  { id: 9, nombre: 'Sueldo', tipo: 'INGRESO', icono: 'sueldo', color: '#1f8a5b' },
+  { id: 10, nombre: 'Ingresos extra', tipo: 'INGRESO', icono: 'extra', color: '#2fa36c' },
+];
+
+function leer() {
+  try { const d = JSON.parse(localStorage.getItem(CLAVE)); if (d) return d; } catch (e) {}
+  return { usuarios: [], sesion: null, categorias: CATEGORIAS_INICIALES, movimientos: [], presupuestos: [], compras: [], alertasLeidas: [] };
+}
+function guardar() { try { localStorage.setItem(CLAVE, JSON.stringify(db)); } catch (e) {} }
+let db = leer();
+const nuevoId = lista => lista.reduce((m, x) => Math.max(m, x.id), 0) + 1;
+
+// ---------- UTILIDADES ----------
+const $ = id => document.getElementById(id);
+const pesos = n => '$ ' + Number(n).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const hoy = () => new Date().toISOString().slice(0, 10);
+const mesActual = () => $('mes').value || hoy().slice(0, 7);
+const cat = id => db.categorias.find(c => c.id === Number(id)) || CATEGORIAS_INICIALES[7];
+const fechaCorta = f => { const [a, m, d] = f.split('-'); return `${d}/${m}`; };
+const movsDelMes = () => db.movimientos.filter(m => m.fecha.startsWith(mesActual()) && m.usuario === db.sesion);
+const icoCat = c => `<span class="ico" style="background:${c.color}1f;color:${c.color}">${ICONOS[c.icono]}</span>`;
+
+// ---------- NAVEGACIÓN ----------
+const PRIVADAS = ['inicio', 'movimientos', 'presupuestos', 'compras', 'categorias'];
+function ir(pantalla) {
+  if (PRIVADAS.includes(pantalla) && !db.sesion) pantalla = 'login';
+  document.querySelectorAll('.pantalla').forEach(p => p.classList.toggle('visible', p.id === pantalla));
+  $('menu').classList.toggle('visible', PRIVADAS.includes(pantalla));
+  document.querySelectorAll('#menu button').forEach(b => b.classList.toggle('activo', b.dataset.ir === pantalla));
+  render();
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-ir]');
+  if (b) { e.preventDefault(); ir(b.dataset.ir); }
+});
+
+// ---------- LOGIN / REGISTRO ----------
+$('form-registro').addEventListener('submit', e => {
+  e.preventDefault();
+  const email = $('reg-email').value.trim().toLowerCase();
+  if ($('reg-clave').value !== $('reg-clave2').value) return ($('reg-error').textContent = 'Las contraseñas no coinciden');
+  if (db.usuarios.some(u => u.email === email)) return ($('reg-error').textContent = 'Ese correo ya está registrado');
+  db.usuarios.push({ nombre: $('reg-nombre').value.trim(), email, clave: $('reg-clave').value });
+  db.sesion = email; guardar(); ir('inicio');
+});
+$('form-login').addEventListener('submit', e => {
+  e.preventDefault();
+  const email = $('login-email').value.trim().toLowerCase();
+  const u = db.usuarios.find(u => u.email === email && u.clave === $('login-clave').value);
+  if (!u) return ($('login-error').textContent = 'Correo o contraseña incorrectos');
+  db.sesion = email; guardar(); ir('inicio');
+});
+$('btn-salir').addEventListener('click', () => { db.sesion = null; guardar(); ir('bienvenida'); });
+
+// ---------- MOVIMIENTOS ----------
+$('form-mov').addEventListener('submit', e => {
+  e.preventDefault();
+  db.movimientos.push({
+    id: nuevoId(db.movimientos), usuario: db.sesion,
+    tipo: document.querySelector('[name=tipo]:checked').value,
+    monto: Number($('mov-monto').value), fecha: $('mov-fecha').value,
+    categoria: Number($('mov-categoria').value), descripcion: $('mov-desc').value.trim(),
+  });
+  guardar(); e.target.reset(); $('mov-fecha').value = hoy(); render();
+});
+document.querySelectorAll('[name=tipo]').forEach(r => r.addEventListener('change', render));
+function borrarMov(id) { db.movimientos = db.movimientos.filter(m => m.id !== id); guardar(); render(); }
+
+$('btn-csv').addEventListener('click', () => {
+  const filas = [['Fecha', 'Tipo', 'Categoría', 'Descripción', 'Monto']]
+    .concat(movsDelMes().map(m => [m.fecha, m.tipo, cat(m.categoria).nombre, m.descripcion, m.monto]));
+  const csv = filas.map(f => f.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' }));
+  a.download = `movimientos-${mesActual()}.csv`; a.click();
+});
+
+// ---------- PRESUPUESTOS ----------
+$('form-pres').addEventListener('submit', e => {
+  e.preventDefault();
+  const categoria = Number($('pres-categoria').value), mes = mesActual();
+  const existente = db.presupuestos.find(p => p.usuario === db.sesion && p.categoria === categoria && p.mes === mes);
+  if (existente) existente.monto = Number($('pres-monto').value);
+  else db.presupuestos.push({ id: nuevoId(db.presupuestos), usuario: db.sesion, categoria, mes, monto: Number($('pres-monto').value) });
+  guardar(); e.target.reset(); render();
+});
+function gastadoEn(categoria) {
+  return movsDelMes().filter(m => m.tipo === 'GASTO' && m.categoria === categoria).reduce((t, m) => t + m.monto, 0);
+}
+const presDelMes = () => db.presupuestos.filter(p => p.usuario === db.sesion && p.mes === mesActual());
+
+// ---------- COMPRAS PLANIFICADAS (carro) ----------
+$('form-compra').addEventListener('submit', e => {
+  e.preventDefault();
+  db.compras.push({ id: nuevoId(db.compras), usuario: db.sesion, nombre: $('compra-nombre').value.trim(), monto: Number($('compra-monto').value), categoria: Number($('compra-categoria').value) });
+  guardar(); e.target.reset(); render();
+});
+function confirmarCompra(id) {
+  // Al confirmar, la compra planificada se convierte en un gasto
+  const c = db.compras.find(x => x.id === id);
+  db.movimientos.push({ id: nuevoId(db.movimientos), usuario: db.sesion, tipo: 'GASTO', monto: c.monto, fecha: hoy(), categoria: c.categoria, descripcion: c.nombre });
+  db.compras = db.compras.filter(x => x.id !== id); guardar(); render();
+}
+function borrarCompra(id) { db.compras = db.compras.filter(x => x.id !== id); guardar(); render(); }
+
+// ---------- CATEGORÍAS ----------
+document.querySelectorAll('[name=tipocat]').forEach(r => r.addEventListener('change', render));
+$('btn-nueva-cat').addEventListener('click', () => {
+  const nombre = prompt('Nombre de la nueva categoría:');
+  if (!nombre) return;
+  const tipo = document.querySelector('[name=tipocat]:checked').value;
+  db.categorias.push({ id: nuevoId(db.categorias), nombre: nombre.trim(), tipo, icono: 'otros', color: '#6b7a85' });
+  guardar(); render();
+});
+
+// ---------- ALERTAS ----------
+function calcularAlertas() {
+  return presDelMes().map(p => {
+    const porc = gastadoEn(p.categoria) / p.monto * 100, nombre = cat(p.categoria).nombre;
+    const clave = `${p.mes}-${p.categoria}-${porc >= 100 ? 100 : 80}`;
+    if (porc >= 100) return { clave, roja: true, texto: `Superaste el presupuesto de ${nombre} (${Math.round(porc)}%)` };
+    if (porc >= 80) return { clave, roja: false, texto: `Usaste el ${Math.round(porc)}% del presupuesto de ${nombre}` };
+  }).filter(a => a && !db.alertasLeidas.includes(a.clave));
+}
+$('btn-leidas').addEventListener('click', () => { db.alertasLeidas.push(...calcularAlertas().map(a => a.clave)); guardar(); render(); });
+$('mes').addEventListener('change', render);
+
+// ---------- RENDER ----------
+function itemMov(m, conBorrar) {
+  const c = cat(m.categoria), signo = m.tipo === 'GASTO' ? '- ' : '+ ';
+  return `<li class="item">${icoCat(c)}<div class="item-texto"><b>${m.descripcion || c.nombre}</b><small>${c.nombre} · ${fechaCorta(m.fecha)}</small></div>
+    <span class="monto ${m.tipo.toLowerCase()}">${signo}${pesos(m.monto)}</span>
+    ${conBorrar ? `<button class="btn-borrar" onclick="borrarMov(${m.id})" title="Borrar">${ICONOS.basura}</button>` : ''}</li>`;
+}
+function opciones(tipo) {
+  return db.categorias.filter(c => !tipo || c.tipo === tipo).map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+}
+
+function render() {
+  if (!db.sesion) return;
+  const usuario = db.usuarios.find(u => u.email === db.sesion);
+  $('nombre-usuario').textContent = usuario ? usuario.nombre : '';
+  const movs = movsDelMes().sort((a, b) => b.fecha.localeCompare(a.fecha) || b.id - a.id);
+  const ing = movs.filter(m => m.tipo === 'INGRESO').reduce((t, m) => t + m.monto, 0);
+  const gas = movs.filter(m => m.tipo === 'GASTO').reduce((t, m) => t + m.monto, 0);
+
+  // Inicio
+  $('ingresos').textContent = pesos(ing); $('gastos').textContent = pesos(gas); $('balance').textContent = pesos(ing - gas);
+  const alertas = calcularAlertas();
+  $('alertas').innerHTML = alertas.length
+    ? alertas.map(a => `<div class="alerta ${a.roja ? 'roja' : ''}">${ICONOS.alerta}${a.texto}</div>`).join('')
+    : '<p class="sin-datos">Sin alertas.</p>';
+  $('ultimos').innerHTML = movs.slice(0, 4).map(m => itemMov(m)).join('') || '<p class="sin-datos">Todavía no cargaste movimientos.</p>';
+
+  // Movimientos
+  const tipoSel = document.querySelector('[name=tipo]:checked').value, catSel = $('mov-categoria').value;
+  $('mov-categoria').innerHTML = opciones(tipoSel);
+  if ([...$('mov-categoria').options].some(o => o.value === catSel)) $('mov-categoria').value = catSel;
+  if (!$('mov-fecha').value) $('mov-fecha').value = hoy();
+  $('lista-mov').innerHTML = movs.map(m => itemMov(m, true)).join('') || '<p class="sin-datos">Sin movimientos este mes.</p>';
+
+  // Presupuestos
+  $('pres-categoria').innerHTML = opciones('GASTO');
+  $('lista-pres').innerHTML = presDelMes().map(p => {
+    const c = cat(p.categoria), g = gastadoEn(p.categoria), porc = Math.round(g / p.monto * 100);
+    const clase = porc >= 100 ? 'excedido' : porc >= 80 ? 'medio' : '';
+    return `<div class="tarjeta pres">${icoCat(c)}<div class="item-texto"><b>${c.nombre}</b><small>${pesos(g)} / ${pesos(p.monto)}</small>
+      <div class="barra"><div class="${clase}" style="width:${Math.min(porc, 100)}%"></div></div></div><span class="porc">${porc}%</span></div>`;
+  }).join('') || '<p class="sin-datos">No hay presupuestos para este mes.</p>';
+
+  // Compras planificadas
+  const compras = db.compras.filter(c => c.usuario === db.sesion);
+  $('compra-categoria').innerHTML = opciones('GASTO');
+  $('total-carro').textContent = pesos(compras.reduce((t, c) => t + c.monto, 0));
+  $('lista-compras').innerHTML = compras.map(x => {
+    const c = cat(x.categoria);
+    return `<li class="item">${icoCat(c)}<div class="item-texto"><b>${x.nombre}</b><small>${c.nombre} · ${pesos(x.monto)}</small></div>
+      <button class="btn-chico" onclick="confirmarCompra(${x.id})">Confirmar</button>
+      <button class="btn-borrar" onclick="borrarCompra(${x.id})" title="Quitar">${ICONOS.basura}</button></li>`;
+  }).join('') || '<p class="sin-datos">El carro está vacío.</p>';
+
+  // Categorías
+  const tipoCat = document.querySelector('[name=tipocat]:checked').value;
+  $('lista-cat').innerHTML = db.categorias.filter(c => c.tipo === tipoCat)
+    .map(c => `<li class="item">${icoCat(c)}<div class="item-texto"><b>${c.nombre}</b></div><span class="chevron">${ICONOS.chevron}</span></li>`).join('');
+}
+
+// ---------- DATOS DE EJEMPLO (abrir index.html?demo para cargarlos) ----------
+function cargarDemo() {
+  const m = hoy().slice(0, 7);
+  db = leer();
+  db.usuarios = [{ nombre: 'Alejandra', email: 'ale@finanzapp.com', clave: '123456' }];
+  db.sesion = 'ale@finanzapp.com';
+  const u = db.sesion, d = n => `${m}-${String(n).padStart(2, '0')}`;
+  db.movimientos = [
+    { id: 1, usuario: u, tipo: 'INGRESO', monto: 950000, fecha: d(1), categoria: 9, descripcion: 'Sueldo' },
+    { id: 2, usuario: u, tipo: 'GASTO', monto: 280000, fecha: d(2), categoria: 3, descripcion: 'Alquiler' },
+    { id: 3, usuario: u, tipo: 'GASTO', monto: 42500, fecha: d(3), categoria: 4, descripcion: 'Luz y gas' },
+    { id: 4, usuario: u, tipo: 'GASTO', monto: 68300, fecha: d(3), categoria: 1, descripcion: 'Supermercado' },
+    { id: 5, usuario: u, tipo: 'GASTO', monto: 25000, fecha: d(4), categoria: 2, descripcion: 'Carga SUBE' },
+    { id: 6, usuario: u, tipo: 'INGRESO', monto: 120000, fecha: d(4), categoria: 10, descripcion: 'Clases de Pilates' },
+    { id: 7, usuario: u, tipo: 'GASTO', monto: 18900, fecha: d(4), categoria: 6, descripcion: 'Cine' },
+  ];
+  db.presupuestos = [
+    { id: 1, usuario: u, categoria: 1, mes: m, monto: 150000 },
+    { id: 2, usuario: u, categoria: 2, mes: m, monto: 30000 },
+    { id: 3, usuario: u, categoria: 4, mes: m, monto: 50000 },
+    { id: 4, usuario: u, categoria: 6, mes: m, monto: 40000 },
+  ];
+  db.compras = [
+    { id: 1, usuario: u, nombre: 'Zapatillas', monto: 85000, categoria: 7 },
+    { id: 2, usuario: u, nombre: 'Turno odontólogo', monto: 30000, categoria: 5 },
+    { id: 3, usuario: u, nombre: 'Auriculares', monto: 45000, categoria: 6 },
+  ];
+  db.alertasLeidas = [];
+  guardar();
+}
+
+// ---------- INICIO ----------
+const params = new URLSearchParams(location.search);
+if (params.has('demo')) cargarDemo();
+pintarIconos();
+document.querySelector('.estado-iconos').innerHTML = ICONOS.estado;
+$('mes').value = hoy().slice(0, 7);
+ir(params.get('pantalla') || (db.sesion ? 'inicio' : 'bienvenida'));
+
+</script>
+</body>
+</html>

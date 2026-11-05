@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinanzApp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ========== PANTALLA DE LOGIN ========== -->
+  <section id="pantalla-login" class="login">
+    <div class="login-caja">
+      <h1 class="logo">FinanzApp</h1>
+      <p class="login-sub">Tus ingresos, gastos y presupuestos en un solo lugar.</p>
+
+      <form id="form-login">
+        <label>Email
+          <input type="email" id="login-email" required placeholder="ale@ejemplo.com">
+        </label>
+        <label>Contraseña
+          <input type="password" id="login-pass" required minlength="4" placeholder="••••">
+        </label>
+        <button type="submit" class="btn btn-principal">Ingresar</button>
+        <p id="login-error" class="error"></p>
+      </form>
+      <p class="nota">Demo: cualquier email y una contraseña de 4 caracteres o más.</p>
+    </div>
+  </section>
+
+  <!-- ========== APLICACIÓN ========== -->
+  <div id="pantalla-app" class="app oculto">
+
+    <header class="barra">
+      <span class="logo logo-chico">FinanzApp</span>
+      <nav class="menu">
+        <button class="menu-item activo" data-seccion="resumen">Resumen</button>
+        <button class="menu-item" data-seccion="movimientos">Movimientos</button>
+        <button class="menu-item" data-seccion="presupuestos">Presupuestos</button>
+        <button class="menu-item" data-seccion="compras">Compras planificadas</button>
+      </nav>
+      <div class="usuario">
+        <span id="usuario-email"></span>
+        <button id="btn-salir" class="btn btn-chico">Salir</button>
+      </div>
+    </header>
+
+    <main class="contenido">
+
+      <!-- RESUMEN -->
+      <section id="resumen" class="seccion">
+        <h2>Resumen del mes</h2>
+        <div class="tarjetas">
+          <div class="tarjeta">
+            <span class="tarjeta-titulo">Ingresos</span>
+            <span id="total-ingresos" class="tarjeta-valor positivo">$0</span>
+          </div>
+          <div class="tarjeta">
+            <span class="tarjeta-titulo">Gastos</span>
+            <span id="total-gastos" class="tarjeta-valor negativo">$0</span>
+          </div>
+          <div class="tarjeta tarjeta-saldo">
+            <span class="tarjeta-titulo">Saldo</span>
+            <span id="total-saldo" class="tarjeta-valor">$0</span>
+          </div>
+        </div>
+
+        <h3>Alertas de presupuesto</h3>
+        <ul id="lista-alertas" class="alertas"></ul>
+
+        <h3>Últimos movimientos</h3>
+        <table class="tabla">
+          <thead><tr><th>Fecha</th><th>Descripción</th><th>Categoría</th><th class="der">Monto</th></tr></thead>
+          <tbody id="tabla-ultimos"></tbody>
+        </table>
+      </section>
+
+      <!-- MOVIMIENTOS -->
+      <section id="movimientos" class="seccion oculto">
+        <h2>Movimientos</h2>
+        <div class="dos-columnas">
+          <form id="form-movimiento" class="panel">
+            <h3>Nuevo movimiento</h3>
+            <label>Tipo
+              <select id="mov-tipo">
+                <option value="gasto">Gasto</option>
+                <option value="ingreso">Ingreso</option>
+              </select>
+            </label>
+            <label>Descripción
+              <input type="text" id="mov-descripcion" required placeholder="Ej.: Supermercado">
+            </label>
+            <label>Categoría
+              <select id="mov-categoria"></select>
+            </label>
+            <label>Monto
+              <input type="number" id="mov-monto" required min="1" step="0.01" placeholder="0">
+            </label>
+            <label>Fecha
+              <input type="date" id="mov-fecha" required>
+            </label>
+            <button type="submit" class="btn btn-principal">Guardar movimiento</button>
+          </form>
+
+          <div class="panel">
+            <div class="panel-cabecera">
+              <h3>Listado</h3>
+              <select id="filtro-tipo">
+                <option value="todos">Todos</option>
+                <option value="ingreso">Solo ingresos</option>
+                <option value="gasto">Solo gastos</option>
+              </select>
+            </div>
+            <table class="tabla">
+              <thead><tr><th>Fecha</th><th>Descripción</th><th>Categoría</th><th class="der">Monto</th><th></th></tr></thead>
+              <tbody id="tabla-movimientos"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PRESUPUESTOS -->
+      <section id="presupuestos" class="seccion oculto">
+        <h2>Presupuestos mensuales</h2>
+        <div class="dos-columnas">
+          <form id="form-presupuesto" class="panel">
+            <h3>Definir presupuesto</h3>
+            <label>Categoría
+              <select id="pre-categoria"></select>
+            </label>
+            <label>Límite mensual
+              <input type="number" id="pre-limite" required min="1" step="0.01" placeholder="0">
+            </label>
+            <button type="submit" class="btn btn-principal">Guardar presupuesto</button>
+          </form>
+
+          <div class="panel">
+            <h3>Estado por categoría</h3>
+            <div id="lista-presupuestos" class="presupuestos"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- COMPRAS PLANIFICADAS (cumple el requisito del «carro») -->
+      <section id="compras" class="seccion oculto">
+        <h2>Compras planificadas</h2>
+        <p class="ayuda">Anotá lo que pensás comprar. Al confirmar una compra se registra como gasto.</p>
+        <div class="dos-columnas">
+          <form id="form-compra" class="panel">
+            <h3>Agregar compra</h3>
+            <label>Producto
+              <input type="text" id="com-producto" required placeholder="Ej.: Zapatillas">
+            </label>
+            <label>Categoría
+              <select id="com-categoria"></select>
+            </label>
+            <label>Precio estimado
+              <input type="number" id="com-precio" required min="1" step="0.01" placeholder="0">
+            </label>
+            <button type="submit" class="btn btn-principal">Agregar a la lista</button>
+          </form>
+
+          <div class="panel">
+            <div class="panel-cabecera">
+              <h3>Lista</h3>
+              <span>Total: <strong id="total-compras">$0</strong></span>
+            </div>
+            <ul id="lista-compras" class="compras"></ul>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div id="aviso" class="aviso"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
