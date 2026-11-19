@@ -17,3 +17,39 @@ Authorization: Bearer {{login.response.body.token}}
 
 ### Perfil SIN token (debería rechazar)
 GET http://localhost:3000/api/perfil
+
+### Crear un ingreso
+POST http://localhost:3000/api/movimientos
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "tipo": "ingreso", "descripcion": "Sueldo", "categoria": "Trabajo", "monto": 850000, "fecha": "2026-11-05" }
+
+### Crear un gasto
+POST http://localhost:3000/api/movimientos
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "tipo": "gasto", "descripcion": "Super", "categoria": "Comida", "monto": 45000, "fecha": "2026-11-10" }
+
+### Listar los de noviembre
+GET http://localhost:3000/api/movimientos?mes=2026-11
+Authorization: Bearer {{login.response.body.token}}
+
+### Editar el movimiento 2
+PUT http://localhost:3000/api/movimientos/2
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "tipo": "gasto", "descripcion": "Supermercado", "categoria": "Comida", "monto": 47500, "fecha": "2026-11-10" }
+
+### Borrar el movimiento 2
+DELETE http://localhost:3000/api/movimientos/2
+Authorization: Bearer {{login.response.body.token}}
+
+### Dato inválido (debería dar error 400)
+POST http://localhost:3000/api/movimientos
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "tipo": "otro", "descripcion": "x", "categoria": "x", "monto": 1, "fecha": "2026-11-10" }

@@ -62,7 +62,7 @@ router.post('/login', async (req, res) => {
       { expiresIn: '2h' }
     );
 
-    res.json({ token });
+    res.json({ token, nombre: usuario.nombre });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error en el servidor' });
