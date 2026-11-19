@@ -186,6 +186,12 @@ input:focus, select:focus { outline: 2px solid var(--verde-claro); border-color:
 .menu button svg { width: 22px; height: 22px; }
 .menu button.activo { color: var(--verde); }
 
+/* ===== Guía rápida ===== */
+.oculto { display: none !important; }
+.guia { background: #f3faf6; border-color: #cfe8db; display: flex; flex-direction: column; gap: 10px; }
+.guia-pasos { padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.45; }
+.guia-pasos .link { font-size: 14px; }
+
 /* ===== VERSIÓN PÁGINA WEB (pantallas de computadora) ===== */
 .barra-estado { display: none; }
 @media (min-width: 900px) {
@@ -286,7 +292,21 @@ input:focus, select:focus { outline: 2px solid var(--verde-claro); border-color:
     <!-- 4. INICIO -->
     <section class="pantalla con-menu" id="inicio">
       <header class="cabecera"><div><p class="saludo">Hola,</p><h2 id="nombre-usuario">Usuario</h2></div><button class="icon-btn" id="btn-salir" data-icon="salir" title="Salir"></button></header>
-      <input type="month" id="mes" class="selector-mes">
+      <div class="fila-entre">
+        <input type="month" id="mes" class="selector-mes">
+        <button class="link" id="btn-ver-guia">¿Cómo funciona?</button>
+      </div>
+      <!-- GUÍA RÁPIDA -->
+      <div class="tarjeta guia" id="guia">
+        <div class="fila-entre"><h4>¿Cómo funciona FinanzApp?</h4><button class="link" id="btn-ocultar-guia">Ocultar guía</button></div>
+        <ol class="guia-pasos">
+          <li><b>Cargá tus movimientos.</b> En <a href="#" class="link" data-ir="movimientos">Movimientos</a> registrá cada ingreso y gasto con su monto, fecha y categoría.</li>
+          <li><b>Poné un tope por categoría.</b> En <a href="#" class="link" data-ir="presupuestos">Presupuestos</a> definí cuánto querés gastar por mes en cada categoría.</li>
+          <li><b>Mirá tus alertas.</b> Acá en Inicio te avisamos cuando llegás al 80 % de un presupuesto o cuando lo superás.</li>
+          <li><b>Planificá tus compras.</b> En <a href="#" class="link" data-ir="compras">Compras</a> anotá lo que pensás comprar. Cuando lo compres, tocá <b>Confirmar</b> y se registra como gasto.</li>
+          <li><b>Revisá otros meses.</b> Con el selector de mes de arriba ves el balance de cualquier mes.</li>
+        </ol>
+      </div>
       <div class="tarjeta-balance">
         <p>Balance del mes</p>
         <h3 id="balance">$ 0,00</h3>
@@ -701,6 +721,17 @@ function render() {
   $('lista-cat').innerHTML = db.categorias.filter(c => c.tipo === tipoCat)
     .map(c => `<li class="item">${icoCat(c)}<div class="item-texto"><b>${c.nombre}</b></div><span class="chevron">${ICONOS.chevron}</span></li>`).join('');
 }
+
+// ---------- GUÍA RÁPIDA ----------
+// Se muestra hasta que el usuario la oculta; con "¿Cómo funciona?" vuelve a aparecer
+function mostrarGuia(visible) {
+  $('guia').classList.toggle('oculto', !visible);
+  $('btn-ver-guia').classList.toggle('oculto', visible);
+  try { localStorage.setItem('finanzapp_guia', visible ? '1' : '0'); } catch (e) {}
+}
+$('btn-ocultar-guia').addEventListener('click', () => mostrarGuia(false));
+$('btn-ver-guia').addEventListener('click', () => mostrarGuia(true));
+mostrarGuia(localStorage.getItem('finanzapp_guia') !== '0');
 
 // ---------- INICIO ----------
 pintarIconos();
